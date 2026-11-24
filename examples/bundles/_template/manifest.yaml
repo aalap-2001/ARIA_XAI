@@ -1,0 +1,10 @@
+domain: __DOMAIN__
+name: New domain
+version: 1.0.0
+tenant: my-organisation
+description: Describe what agents in this domain do. Edit every artifact, no engine
+  code changes are ever needed.
+icon: spark
+color: '#8e4ec6'
+hash: d381545b137a2244ff34a60330ccba1aded00172c1ccd7f4ed480e8719729376
+signature: 350e5f9a7a5dce1e785250adae85f711b5cd746e833985a933d2bde02cdbe742

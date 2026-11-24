@@ -1,0 +1,26 @@
+roles:
+  - agent: assistant
+    scope: case
+    entities: [WorkItem, Guideline, Insight]
+    write: [WorkItem]
+  - agent: auditor
+    scope: tenant
+    entities: [WorkItem, Guideline, Insight]
+decisions: [COMPLETE]
+retention:
+  facts_years: 3
+  episodes_years: 1
+  receipts_days: 180
+reflection:
+  entity: Insight
+  min_evidence: 3
+seed_facts:
+  - key: default-guideline
+    entity: Guideline
+    subject: default
+    predicate: limits
+    value: {threshold: 1000}
+    effective_from: "2024-01-01"
+    published_at: "2024-01-01"
+    ingested_at: "2024-01-01"
+    source: {source: "Operating guideline v1", locator: "§1", ingest_job: "seed"}

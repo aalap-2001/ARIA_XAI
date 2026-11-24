@@ -1,0 +1,32 @@
+default: BLOCK
+actions:
+  - {name: APPROVE_LOAN, risk: HIGH, connector: funding, operation: disburse, description: Approve and fund the loan}
+  - {name: DECLINE_LOAN, risk: HIGH, connector: notices, operation: send_adverse_action, description: Decline with an adverse-action notice}
+  - {name: REQUEST_INFO, risk: LOW, connector: notices, operation: send_request, description: Ask the applicant for missing information}
+statements:
+  - id: approve-requires-valid
+    effect: BLOCK
+    actions: [APPROVE_LOAN]
+    when: {path: verdict, op: "!=", value: VALID}
+    reason: Approval requires a VALID verdict.
+  - id: approve-up-to-50k
+    effect: ALLOW
+    actions: [APPROVE_LOAN]
+    when: {all: [{path: amount, op: "<=", value: 50000}, {path: verdict, op: "==", value: VALID}]}
+    reason: Approvals up to $50k are delegated to the agent.
+  - id: approve-over-50k
+    effect: REVIEW
+    actions: [APPROVE_LOAN]
+    when: {path: amount, op: ">", value: 50000}
+    reason: Approvals over $50k need a credit officer.
+  - id: decline-fair-lending
+    effect: REVIEW
+    actions: [DECLINE_LOAN]
+    reason: Every decline is reviewed by a human (fair-lending exposure).
+  - id: request-info
+    effect: ALLOW
+    actions: [REQUEST_INFO]
+    reason: Asking for information is always permitted. Insufficient evidence is not a decline.
+model_policy:
+  approved_models: [claude-opus-5-5, claude-sonnet-5-5, aria-offline-reasoner]
+  strip_fields: [applicant_name, ssn, dob, address, email, phone, account_number]

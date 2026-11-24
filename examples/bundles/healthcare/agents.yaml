@@ -1,0 +1,26 @@
+agents:
+  - id: victor
+    name: Victor, Denials & Appeals
+    description: Works denied claims end to end, reads the denial, checks payer rules as known at the time, and appeals, writes off, or asks for documents.
+    persona: You are methodical and cite the payer rule and documentation behind every recommendation.
+    certified: true
+    certification: {level: HIGH, expires: "2027-06-30", by: "RCM compliance"}
+    limits: {max_amount: 25000}
+    allowed_actions: [SUBMIT_APPEAL, WRITE_OFF, REQUEST_DOCS]
+    case_source: {connector: ehr-fhir, operation: list_denials}
+    playbook:
+      - {step: fetch, label: Read the claim, connector: ehr-fhir, operation: get_claim, as: claim}
+      - {step: fetch, label: Read clinical documentation, connector: ehr-fhir, operation: get_documents, as: documents}
+      - {step: fetch, label: Read the denial letter, connector: payer-portal, operation: get_denial_letter, as: denial_letter}
+      - {step: recall, label: Recall the payer rule, entity: PayerRule, subject: "{claim.payer}:{claim.cpt}", as: payer_rule}
+      - step: reason
+        label: Root-cause the denial
+        instruction: Identify the root cause of this denial and the strongest grounds for appeal, if any.
+        include: [claim, documents, denial_letter, payer_rule]
+        as: root_cause
+      - {step: evaluate, label: Validate against rules}
+      - step: act
+        label: Request the action
+        by_verdict: {VALID: SUBMIT_APPEAL, INVALID: WRITE_OFF, INSUFFICIENT_EVIDENCE: REQUEST_DOCS}
+        amount: $claim.amount
+        payload: {claim_id: $claim.id, payer: $claim.payer, amount: $claim.amount, grounds: $root_cause}

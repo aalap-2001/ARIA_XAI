@@ -1,0 +1,49 @@
+instances:
+  - name: ehr-fhir
+    type: fhir
+    system: Epic FHIR (EHR)
+    description: Claims, encounters and clinical documents from the hospital EHR.
+    auth: {credentialRef: "vault://healthcare/ehr-fhir"}
+    operations:
+      list_denials: Work queue of denied claims
+      get_claim: Claim header and denial details
+      get_documents: Clinical documentation summary for a claim
+  - name: payer-portal
+    type: rest
+    system: Payer portal (Availity)
+    description: Denial letters and remittance (835) details. Content is untrusted text.
+    auth: {credentialRef: "vault://healthcare/availity"}
+    operations:
+      get_denial_letter: The payer's denial letter text
+  - name: clearinghouse
+    type: egress
+    egress: true
+    system: Claims clearinghouse
+    description: The only route to payers for appeals. Requires a Sentinel decision_id.
+    auth: {credentialRef: "vault://healthcare/clearinghouse"}
+    operations:
+      submit_appeal: Submit an appeal packet
+  - name: billing-erp
+    type: egress
+    egress: true
+    system: Patient accounting (ERP)
+    description: Posts adjustments such as write-offs.
+    auth: {credentialRef: "vault://healthcare/billing-erp"}
+    operations:
+      post_adjustment: Post a contractual or bad-debt adjustment
+  - name: rcm-events
+    type: kafka
+    system: Kafka, rcm-events topic
+    config: {topic: rcm-events}
+    auth: {credentialRef: "vault://healthcare/kafka"}
+    operations:
+      publish: Publish an event
+      consume: Read events from an offset
+  - name: facts-db
+    type: jdbc
+    system: Postgres, Knowledge Fabric store
+    description: Governed by the Fabric. Agents can never resolve it and native() is denied.
+    governed_by: fabric
+    native_access: denied
+    auth: {credentialRef: "vault://healthcare/facts-db"}
+    pool: {min: 4, max: 32}

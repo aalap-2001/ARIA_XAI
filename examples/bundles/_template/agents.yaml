@@ -1,0 +1,19 @@
+agents:
+  - id: assistant
+    name: Assistant
+    description: A starter agent. Rename it, give it a persona, and edit its playbook.
+    persona: You are careful and explain your reasoning.
+    certified: true
+    limits: {max_amount: 10000}
+    allowed_actions: [COMPLETE, ESCALATE]
+    case_source: {connector: source-system, operation: list_items}
+    playbook:
+      - {step: fetch, label: Read the item, connector: source-system, operation: get_item, as: item}
+      - {step: recall, label: Recall the guideline, entity: Guideline, subject: default, as: guideline}
+      - {step: reason, label: Assess the item, instruction: Assess this item and summarise the deciding factors., include: [item, guideline], as: assessment}
+      - {step: evaluate, label: Validate against rules}
+      - step: act
+        label: Request the action
+        by_verdict: {VALID: COMPLETE, INVALID: ESCALATE, INSUFFICIENT_EVIDENCE: ESCALATE}
+        amount: $item.value
+        payload: {item_id: $item.id, note: $assessment}

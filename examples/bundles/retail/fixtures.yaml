@@ -1,0 +1,36 @@
+returns-portal:
+  list_returns:
+    - {id: R-5001, title: "Apparel · $89.99 · 12 days", summary: "Wrong size"}
+    - {id: R-5002, title: "Electronics · $249.00 · 22 days", summary: "Changed mind"}
+    - {id: R-5003, title: "Electronics · $1,299.00 · 9 days", summary: "Defective screen"}
+    - {id: R-5004, title: "Apparel · $420.00 · 5 days", summary: "Frequent returner, no receipt"}
+    - {id: R-5005, title: "Home · $159.00 · 14 days", summary: "Not yet inspected"}
+  get_return:
+    R-5001: {id: R-5001, reason: wrong size, channel: store}
+    R-5002: {id: R-5002, reason: changed mind, channel: online}
+    R-5003: {id: R-5003, reason: defective screen, channel: online}
+    R-5004: {id: R-5004, reason: did not fit, channel: store}
+    R-5005: {id: R-5005, reason: damaged in delivery, channel: online}
+pos:
+  get_transaction:
+    R-5001: {order_id: O-71001, category: apparel, amount: 89.99, days_since_purchase: 12, receipt_present: true, card_last4: "4242"}
+    R-5002: {order_id: O-71002, category: electronics, amount: 249.0, days_since_purchase: 22, receipt_present: true}
+    R-5003: {order_id: O-71003, category: electronics, amount: 1299.0, days_since_purchase: 9, receipt_present: true}
+    R-5004: {order_id: O-71004, category: apparel, amount: 420.0, days_since_purchase: 5, receipt_present: false}
+    R-5005: {order_id: O-71005, category: home, amount: 159.0, days_since_purchase: 14, receipt_present: true}
+crm:
+  get_customer:
+    R-5001: {customer_name: Olivia Park, email: olivia.p@example.com, loyalty_member: true, return_rate_12m: 0.05, tenure_years: 4}
+    R-5002: {customer_name: Ben Ito, email: ben.ito@example.com, loyalty_member: false, return_rate_12m: 0.1, tenure_years: 2}
+    R-5003: {customer_name: Chloe Martin, email: chloe.m@example.com, loyalty_member: true, return_rate_12m: 0.02, tenure_years: 6}
+    R-5004: {customer_name: Dan Reyes, email: dreyes@example.com, loyalty_member: true, return_rate_12m: 0.75, tenure_years: 0.2}
+    R-5005: {customer_name: Eva Novak, email: eva.n@example.com, loyalty_member: false, return_rate_12m: 0.1, tenure_years: 3}
+erp-inventory:
+  get_inspection:
+    R-5001: {condition_score: 0.9, inspector: WH-12}
+    R-5002: {condition_score: 0.95, inspector: WH-12}
+    R-5003: {condition_score: 0.7, inspector: WH-04, note: "screen defect confirmed"}
+    R-5004: {condition_score: 0.5, inspector: ST-88}
+    R-5005: {condition_score: null, note: "awaiting inspection"}
+order-events:
+  seed: []

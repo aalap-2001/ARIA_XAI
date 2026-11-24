@@ -1,0 +1,21 @@
+instances:
+  - name: source-system
+    type: rest
+    system: Source system of record
+    auth: {credentialRef: "vault://__DOMAIN__/source"}
+    operations:
+      list_items: Work queue
+      get_item: Item details
+  - name: outbound
+    type: egress
+    egress: true
+    system: Outbound action channel
+    auth: {credentialRef: "vault://__DOMAIN__/outbound"}
+    operations:
+      complete: Complete the item in the downstream system
+  - name: facts-db
+    type: jdbc
+    system: Postgres, Knowledge Fabric store
+    governed_by: fabric
+    native_access: denied
+    auth: {credentialRef: "vault://__DOMAIN__/facts-db"}

@@ -1,0 +1,64 @@
+roles:
+  - agent: victor
+    scope: case
+    entities: [Claim, Payer, Procedure, DenialCode, PayerRule, ClinicalDocument, Insight]
+    write: [ClinicalDocument]
+  - agent: auditor
+    scope: tenant
+    entities: [Claim, Payer, Procedure, DenialCode, PayerRule, ClinicalDocument, Insight]
+decisions: [SUBMIT_APPEAL, WRITE_OFF]
+retention:
+  facts_years: 7
+  episodes_years: 7
+  receipts_days: 365
+reflection:
+  entity: Insight
+  min_evidence: 3
+seed_facts:
+  - key: aetna-70553-v1
+    entity: PayerRule
+    subject: "Aetna:70553"
+    predicate: auth_requirement
+    value: {requires_auth: false, documentation: [order, clinical notes]}
+    effective_from: "2023-01-01"
+    published_at: "2023-01-01"
+    ingested_at: "2023-01-03"
+    superseded_by_key: aetna-70553-v2
+    invalidated_at: "2024-08-03"
+    source: {source: "Aetna provider manual 2023", locator: "§4.2", ingest_job: "6120"}
+  - key: aetna-70553-v2
+    entity: PayerRule
+    subject: "Aetna:70553"
+    predicate: auth_requirement
+    value: {requires_auth: true, documentation: [prior authorization number, order, clinical notes]}
+    effective_from: "2024-06-01"
+    published_at: "2024-08-03"
+    ingested_at: "2024-08-03"
+    source: {source: "Aetna bulletin AET-2024-11", locator: "p.3", ingest_job: "8841"}
+  - key: cigna-27447
+    entity: PayerRule
+    subject: "Cigna:27447"
+    predicate: auth_requirement
+    value: {requires_auth: true, documentation: [prior authorization number, imaging, failed conservative therapy]}
+    effective_from: "2022-01-01"
+    published_at: "2022-01-01"
+    ingested_at: "2022-01-05"
+    source: {source: "Cigna medical policy 0318", locator: "Criteria", ingest_job: "4410"}
+  - key: uhc-99285
+    entity: PayerRule
+    subject: "UnitedHealthcare:99285"
+    predicate: auth_requirement
+    value: {requires_auth: false, documentation: [ED record]}
+    effective_from: "2021-01-01"
+    published_at: "2021-01-01"
+    ingested_at: "2021-02-01"
+    source: {source: "UHC administrative guide 2021", locator: "ch.7", ingest_job: "2210"}
+  - key: humana-70450
+    entity: PayerRule
+    subject: "Humana:70450"
+    predicate: auth_requirement
+    value: {requires_auth: false, documentation: [order]}
+    effective_from: "2022-03-01"
+    published_at: "2022-03-01"
+    ingested_at: "2022-03-02"
+    source: {source: "Humana imaging policy", locator: "Table 2", ingest_job: "3302"}

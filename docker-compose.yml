@@ -1,0 +1,32 @@
+# Aria XAI + Postgres. Put your secrets in a .env file next to this one (see .env.example).
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ariax
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ariax
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ariax"]
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+
+  app:
+    build: .
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      DATABASE_URL: postgresql+psycopg://ariax:${POSTGRES_PASSWORD}@db:5432/ariax
+      ARIAX_MASTER_KEY: ${ARIAX_MASTER_KEY:?set ARIAX_MASTER_KEY in .env}
+      ARIAX_BASE_URL: ${ARIAX_BASE_URL:-http://localhost:8700}
+      ARIAX_COOKIE_SECURE: ${ARIAX_COOKIE_SECURE:-1}
+      ARIAX_BLOCK_PRIVATE_NETWORKS: ${ARIAX_BLOCK_PRIVATE_NETWORKS:-1}
+    ports: ["8700:8700"]
+    volumes: [appdata:/data]
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  appdata:

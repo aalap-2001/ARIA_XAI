@@ -1,0 +1,24 @@
+entities:
+  ReturnRequest:
+    description: A customer's request to return an item.
+    fields: {id: string, reason: string}
+  Transaction:
+    description: The original purchase from the POS or e-commerce system.
+    fields: {amount: number, category: string, days_since_purchase: number, receipt_present: boolean}
+  Customer:
+    description: Customer profile from the CRM. Personal data is stripped before model calls.
+    fields: {loyalty_member: boolean, return_rate_12m: number, tenure_years: number}
+  Item:
+    description: The returned item and its inspected condition (ERP / warehouse).
+    fields: {sku: string, condition_score: number}
+  ReturnPolicy:
+    description: Return window and conditions per category.
+    fields: {window_days: number}
+  Insight:
+    description: A learned, human-approved generalisation produced by reflection.
+    fields: {outcome: string, rate: number}
+relationships:
+  - {name: for_transaction, from: ReturnRequest, to: Transaction}
+  - {name: made_by, from: Transaction, to: Customer}
+  - {name: contains, from: Transaction, to: Item}
+  - {name: governed_by, from: Item, to: ReturnPolicy}

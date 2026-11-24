@@ -1,0 +1,32 @@
+features:
+  item_value: {from: item.value, type: number, description: Value of the work item}
+  limit: {from: guideline.threshold, type: number, description: Guideline threshold as known now}
+  quality: {from: item.quality, type: number, description: Evidence quality (0-1)}
+  verified: {from: item.verified, type: bool, description: Source verified}
+soft:
+  - id: confidence
+    version: "1"
+    output: confidence
+    description: How confident we are the item can be completed.
+    inputs:
+      - {feature: quality, weight: 0.7}
+      - {feature: verified, weight: 0.3}
+thresholds:
+  - signal: confident
+    from: confidence
+    assert_above: 0.75
+    deny_below: 0.40
+    version: "1"
+hard:
+  - id: within-limit
+    version: "1"
+    description: Value must be within the guideline limit.
+    citation: Operating guideline v1 §1
+    require: {path: item_value, op: "<=", value: $limit}
+    on_fail: INVALID
+  - id: confident
+    version: "1"
+    description: The gate must assert confidence.
+    citation: Operating guideline v1 §2
+    require: {path: signals.confident, is: true}
+    on_fail: INVALID

@@ -1,0 +1,10 @@
+domain: healthcare
+name: Healthcare, Revenue Cycle
+version: 1.0.0
+tenant: st-marys-hospital
+description: Denied-claim recovery. An agent works each denial, decides between appeal,
+  write-off and requesting documents, and every action is governed.
+icon: heart
+color: '#e5484d'
+hash: 95cc6c880cd664f3222ca426affa8e34d0049daed103b0bb9e72add4a3631de4
+signature: 0c5d2f44d61591db8aaf109325d86191a01f758ea0317058228aa36c6759ac94

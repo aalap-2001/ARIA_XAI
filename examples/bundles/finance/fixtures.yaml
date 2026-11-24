@@ -1,0 +1,32 @@
+loan-origination:
+  list_applications:
+    - {id: A-1001, title: "Personal loan · $25,000 · 60 mo", summary: "Strong file, low DTI"}
+    - {id: A-1002, title: "Personal loan · $18,000 · 48 mo", summary: "DTI 0.52"}
+    - {id: A-1003, title: "Personal loan · $12,000 · 36 mo", summary: "Bureau file not yet returned"}
+    - {id: A-1004, title: "Auto loan · $120,000 · 72 mo", summary: "Strong file, large amount"}
+    - {id: A-1005, title: "Personal loan · $9,500 · 36 mo", summary: "Thin, delinquent file"}
+  get_application:
+    A-1001: {id: A-1001, product: personal-loan, amount: 25000, term_months: 60, dti: 0.28, applicant_name: Priya Raman, ssn: 512-44-9031, email: priya.r@example.com}
+    A-1002: {id: A-1002, product: personal-loan, amount: 18000, term_months: 48, dti: 0.52, applicant_name: Tom Baker, ssn: 302-11-7744, email: tbaker@example.com}
+    A-1003: {id: A-1003, product: personal-loan, amount: 12000, term_months: 36, dti: 0.31, applicant_name: Ana Silva, ssn: 611-20-1180, email: ana.silva@example.com}
+    A-1004: {id: A-1004, product: auto-loan, amount: 120000, term_months: 72, dti: 0.30, applicant_name: Wei Zhang, ssn: 455-90-3321, email: wzhang@example.com}
+    A-1005: {id: A-1005, product: personal-loan, amount: 9500, term_months: 36, dti: 0.38, applicant_name: Sam Carter, ssn: 233-67-0042, email: scarter@example.com}
+bureau-api:
+  get_report:
+    A-1001: {returned: true, score: 780, utilisation: 0.2, delinquencies_24m: 0}
+    A-1002: {returned: true, score: 690, utilisation: 0.45, delinquencies_24m: 1}
+    A-1003: {returned: false, status: "pending, bureau timeout"}
+    A-1004: {returned: true, score: 805, utilisation: 0.1, delinquencies_24m: 0}
+    A-1005: {returned: true, score: 520, utilisation: 0.95, delinquencies_24m: 5}
+core-banking:
+  get_accounts:
+    A-1001: {income_verified: true, overdraft_rate: 0.05, account_number: "GB29NWBK60161331926819"}
+    A-1002: {income_verified: true, overdraft_rate: 0.2}
+    A-1003: {income_verified: true, overdraft_rate: 0.1}
+    A-1004: {income_verified: true, overdraft_rate: 0.0}
+    A-1005: {income_verified: true, overdraft_rate: 0.7}
+kyc-aml:
+  get_screening:
+    "*": {kyc_passed: true, aml_clear: true}
+loan-events:
+  seed: []

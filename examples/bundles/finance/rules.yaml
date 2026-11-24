@@ -1,0 +1,64 @@
+features:
+  dti: {from: application.dti, type: number, description: Debt-to-income ratio}
+  max_dti: {from: credit_policy.max_dti, type: number, description: Policy DTI cap as known at decision time}
+  requested_amount: {from: application.amount, type: number, description: Amount requested}
+  credit_score: {from: bureau.score, type: number, description: Bureau score (300-850)}
+  utilisation: {from: bureau.utilisation, type: number, description: Revolving utilisation (0-1)}
+  delinquencies: {from: bureau.delinquencies_24m, type: number, description: Delinquencies in the last 24 months}
+  overdraft_rate: {from: accounts.overdraft_rate, type: number, description: Share of months with an overdraft (alternative data)}
+  income_verified: {from: accounts.income_verified, type: bool, description: Income verified from deposits}
+  kyc_passed: {from: screening.kyc_passed, type: bool, description: Identity verified}
+  aml_clear: {from: screening.aml_clear, type: bool, description: No sanctions / PEP hit}
+soft:
+  - id: credit-risk
+    version: "5"
+    output: risk_score
+    description: Probability-like risk score from bureau and alternative data.
+    inputs:
+      - {feature: credit_score, weight: 0.35, min: 300, max: 850, invert: true}
+      - {feature: utilisation, weight: 0.20}
+      - {feature: delinquencies, weight: 0.25, min: 0, max: 5}
+      - {feature: overdraft_rate, weight: 0.20}
+thresholds:
+  - signal: elevated_risk
+    from: risk_score
+    assert_above: 0.72
+    deny_below: 0.40
+    min_coverage: 0.6
+    version: "3"
+hard:
+  - id: kyc-gate
+    version: "1"
+    description: Identity must be verified (KYC).
+    citation: BSA/AML programme, CIP requirements
+    require: {path: kyc_passed, is: true}
+    on_fail: INVALID
+    message: KYC not passed.
+  - id: aml-gate
+    version: "1"
+    description: No sanctions or PEP match.
+    citation: OFAC screening policy
+    require: {path: aml_clear, is: true}
+    on_fail: INVALID
+    message: AML screening hit.
+  - id: dti-cap
+    version: "2"
+    description: Debt-to-income must not exceed the policy cap in force at decision time.
+    citation: Credit policy CP-12 §2.1 (Knowledge Fabric)
+    require: {path: dti, op: "<=", value: $max_dti}
+    on_fail: INVALID
+    message: DTI above the policy cap.
+  - id: income-verified
+    version: "1"
+    description: Income must be verified.
+    citation: Credit policy CP-12 §3
+    require: {path: income_verified, is: true}
+    on_fail: INSUFFICIENT_EVIDENCE
+    message: Income not yet verified.
+  - id: risk-acceptable
+    version: "1"
+    description: The gate must not assert elevated risk.
+    citation: Risk appetite statement RAS-2024
+    require: {path: signals.elevated_risk, is: false}
+    on_fail: INVALID
+    message: Elevated credit risk.

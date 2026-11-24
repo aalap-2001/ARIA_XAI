@@ -1,0 +1,38 @@
+default: BLOCK
+actions:
+  - {name: SUBMIT_APPEAL, risk: HIGH, connector: clearinghouse, operation: submit_appeal, description: Submit an appeal to the payer}
+  - {name: WRITE_OFF, risk: HIGH, connector: billing-erp, operation: post_adjustment, description: Write the balance off}
+  - {name: REQUEST_DOCS, risk: LOW, description: Ask the clinical team for missing documentation (internal task)}
+statements:
+  - id: appeal-requires-valid
+    effect: BLOCK
+    actions: [SUBMIT_APPEAL]
+    when: {path: verdict, op: "!=", value: VALID}
+    reason: An appeal may only be submitted on a VALID rule-engine verdict.
+  - id: appeal-under-5k
+    effect: ALLOW
+    actions: [SUBMIT_APPEAL]
+    when: {all: [{path: amount, op: "<", value: 5000}, {path: verdict, op: "==", value: VALID}]}
+    reason: Appeals under $5k are pre-approved.
+  - id: appeal-5k-plus
+    effect: REVIEW
+    actions: [SUBMIT_APPEAL]
+    when: {path: amount, op: ">=", value: 5000}
+    reason: Appeals of $5k or more need a human reviewer.
+  - id: writeoff-small
+    effect: ALLOW
+    actions: [WRITE_OFF]
+    when: {path: amount, op: "<=", value: 1000}
+    reason: Small balances may be written off automatically.
+  - id: writeoff-large
+    effect: REVIEW
+    actions: [WRITE_OFF]
+    when: {path: amount, op: ">", value: 1000}
+    reason: Write-offs above $1,000 need a human reviewer.
+  - id: request-docs
+    effect: ALLOW
+    actions: [REQUEST_DOCS]
+    reason: Requesting documentation is always permitted.
+model_policy:
+  approved_models: [claude-opus-5-5, claude-sonnet-5-5, aria-offline-reasoner]
+  strip_fields: [patient_name, mrn, dob, member_id, address, phone]

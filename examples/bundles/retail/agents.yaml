@@ -1,0 +1,27 @@
+agents:
+  - id: rex
+    name: Rex, Returns & Refunds
+    description: Decides return requests using POS, CRM and inspection data and the return policy in force.
+    persona: You are fair to customers and firm on abuse. Explain decisions in plain language.
+    certified: true
+    certification: {level: HIGH, expires: "2027-01-31", by: "Loss prevention"}
+    limits: {max_amount: 5000}
+    allowed_actions: [ISSUE_REFUND, DENY_REFUND, ESCALATE_TO_STORE]
+    case_source: {connector: returns-portal, operation: list_returns}
+    playbook:
+      - {step: fetch, label: Read the return request, connector: returns-portal, operation: get_return, as: return_request}
+      - {step: fetch, label: Find the purchase in POS, connector: pos, operation: get_transaction, as: transaction}
+      - {step: fetch, label: Look up the customer in CRM, connector: crm, operation: get_customer, as: customer}
+      - {step: fetch, label: Read the ERP inspection, connector: erp-inventory, operation: get_inspection, as: inspection}
+      - {step: recall, label: Recall the return policy, entity: ReturnPolicy, subject: "{transaction.category}", as: return_policy}
+      - step: reason
+        label: Assess the return
+        instruction: Assess whether this return looks legitimate and summarise the deciding factors in plain language.
+        include: [return_request, transaction, customer, inspection, return_policy]
+        as: assessment
+      - {step: evaluate, label: Validate against rules}
+      - step: act
+        label: Request the outcome
+        by_verdict: {VALID: ISSUE_REFUND, INVALID: DENY_REFUND, INSUFFICIENT_EVIDENCE: ESCALATE_TO_STORE}
+        amount: $transaction.amount
+        payload: {return_id: $return_request.id, order_id: $transaction.order_id, amount: $transaction.amount, note: $assessment}

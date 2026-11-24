@@ -1,0 +1,11 @@
+domain: finance
+name: Finance, Credit Underwriting
+version: 1.0.0
+tenant: northwind-bank
+description: Personal-loan underwriting for a bank. Bureau, core banking and KYC/AML
+  data feed a risk score; DTI caps and KYC gates are absolute; declines always get
+  a human.
+icon: bank
+color: '#3e63dd'
+hash: ea3b3697edd98855449e4ec749779291b68867ddea579e843aa29d50cab0940c
+signature: c12804794abdb5ed32e05230b4db55ffa15fb9231eef80f5224cd73ffe524897

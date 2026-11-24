@@ -1,0 +1,9 @@
+source-system:
+  list_items:
+    - {id: W-1, title: "Routine item · 120", summary: "High quality, verified"}
+    - {id: W-2, title: "Large item · 900", summary: "Needs review"}
+    - {id: W-3, title: "Unclear item · 300", summary: "Weak evidence"}
+  get_item:
+    W-1: {id: W-1, value: 120, quality: 0.9, verified: true}
+    W-2: {id: W-2, value: 900, quality: 0.95, verified: true}
+    W-3: {id: W-3, value: 300, quality: 0.5, verified: false}

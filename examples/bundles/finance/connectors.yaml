@@ -1,0 +1,60 @@
+instances:
+  - name: loan-origination
+    type: rest
+    system: Loan origination system
+    description: Application intake and work queue.
+    auth: {credentialRef: "vault://finance/los"}
+    operations:
+      list_applications: Applications awaiting a decision
+      get_application: Application details
+  - name: bureau-api
+    type: rest
+    system: Credit bureau API
+    description: Delegated pull, the applicant's consent token must flow through on_behalf_of.
+    delegated: true
+    auth: {credentialRef: "vault://finance/bureau"}
+    operations:
+      get_report: Bureau report for the applicant
+  - name: core-banking
+    type: core-banking
+    system: Core banking (Temenos)
+    description: Banking ERP, accounts, balances, verified income.
+    auth: {credentialRef: "vault://finance/core-banking"}
+    operations:
+      get_accounts: Account summary and cash-flow signals
+  - name: kyc-aml
+    type: rest
+    system: KYC / AML screening service
+    auth: {credentialRef: "vault://finance/kyc"}
+    operations:
+      get_screening: Identity verification and sanctions / PEP screening
+  - name: funding
+    type: egress
+    egress: true
+    system: Core banking, disbursement rail
+    description: Books and disburses approved loans.
+    auth: {credentialRef: "vault://finance/funding"}
+    operations:
+      disburse: Book and fund the loan
+  - name: notices
+    type: egress
+    egress: true
+    system: Customer notices (adverse action / requests)
+    auth: {credentialRef: "vault://finance/notices"}
+    operations:
+      send_adverse_action: Send an adverse-action notice
+      send_request: Ask the applicant for more information
+  - name: loan-events
+    type: kafka
+    system: Kafka, loan-events topic
+    config: {topic: loan-events}
+    auth: {credentialRef: "vault://finance/kafka"}
+    operations:
+      publish: Publish an event
+      consume: Read events
+  - name: facts-db
+    type: jdbc
+    system: Postgres, Knowledge Fabric store
+    governed_by: fabric
+    native_access: denied
+    auth: {credentialRef: "vault://finance/facts-db"}

@@ -1,0 +1,58 @@
+features:
+  days_since_purchase: {from: transaction.days_since_purchase, type: number, description: Days since purchase}
+  return_window: {from: return_policy.window_days, type: number, description: Return window for the category (policy as known now)}
+  refund_amount: {from: transaction.amount, type: number, description: Amount to refund}
+  receipt_present: {from: transaction.receipt_present, type: bool, description: Proof of purchase found}
+  loyalty_member: {from: customer.loyalty_member, type: bool, description: Loyalty member (purchase traceable)}
+  return_rate: {from: customer.return_rate_12m, type: number, description: Share of purchases returned in 12 months}
+  account_age: {from: customer.tenure_years, type: number, description: Years as a customer}
+  item_condition: {from: inspection.condition_score, type: number, description: Inspected condition (0-1)}
+soft:
+  - id: return-fraud
+    version: "2"
+    output: fraud_risk
+    description: Likelihood the return is abusive or fraudulent.
+    inputs:
+      - {feature: return_rate, weight: 0.40}
+      - {feature: item_condition, weight: 0.25, invert: true}
+      - {feature: account_age, weight: 0.20, min: 0, max: 5, invert: true}
+      - {feature: receipt_present, weight: 0.15, invert: true}
+thresholds:
+  - signal: fraud_suspected
+    from: fraud_risk
+    assert_above: 0.70
+    deny_below: 0.35
+    min_coverage: 0.6
+    version: "1"
+hard:
+  - id: within-window
+    version: "1"
+    description: The return must be inside the category's return window.
+    citation: Returns policy RP-3 (Knowledge Fabric)
+    require: {path: days_since_purchase, op: "<=", value: $return_window}
+    on_fail: INVALID
+    message: Outside the return window.
+  - id: proof-of-purchase
+    version: "1"
+    description: A receipt or a traceable loyalty purchase is required.
+    citation: Returns policy RP-3 §4
+    require:
+      any:
+        - {path: receipt_present, is: true}
+        - {path: loyalty_member, is: true}
+    on_fail: INVALID
+    message: No proof of purchase.
+  - id: resaleable
+    version: "1"
+    description: The item must pass inspection.
+    citation: Returns policy RP-3 §5
+    require: {path: item_condition, op: ">=", value: 0.4}
+    on_fail: INVALID
+    message: Item failed inspection.
+  - id: no-fraud-signal
+    version: "1"
+    description: The gate must not assert suspected fraud.
+    citation: Loss-prevention standard LP-9
+    require: {path: signals.fraud_suspected, is: false}
+    on_fail: INVALID
+    message: Return flagged as likely abuse.

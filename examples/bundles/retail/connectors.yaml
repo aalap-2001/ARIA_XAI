@@ -1,0 +1,54 @@
+instances:
+  - name: returns-portal
+    type: rest
+    system: Returns portal
+    auth: {credentialRef: "vault://retail/returns"}
+    operations:
+      list_returns: Open return requests
+      get_return: Return request details
+  - name: pos
+    type: pos
+    system: Store POS / e-commerce orders
+    auth: {credentialRef: "vault://retail/pos"}
+    operations:
+      get_transaction: Original purchase
+  - name: crm
+    type: crm
+    system: Salesforce CRM
+    auth: {credentialRef: "vault://retail/crm"}
+    operations:
+      get_customer: Customer profile and return history
+  - name: erp-inventory
+    type: erp
+    system: SAP ERP, inventory & inspection
+    auth: {credentialRef: "vault://retail/erp"}
+    operations:
+      get_inspection: Warehouse inspection of the returned item
+  - name: payments
+    type: egress
+    egress: true
+    system: Payment gateway, refunds
+    auth: {credentialRef: "vault://retail/payments"}
+    operations:
+      refund: Refund to the original payment method
+  - name: notifications
+    type: egress
+    egress: true
+    system: Customer notifications
+    auth: {credentialRef: "vault://retail/notify"}
+    operations:
+      notify_customer: Email the customer the outcome
+  - name: order-events
+    type: kafka
+    system: Kafka, order-events topic
+    config: {topic: order-events}
+    auth: {credentialRef: "vault://retail/kafka"}
+    operations:
+      publish: Publish an event
+      consume: Read events
+  - name: facts-db
+    type: jdbc
+    system: Postgres, Knowledge Fabric store
+    governed_by: fabric
+    native_access: denied
+    auth: {credentialRef: "vault://retail/facts-db"}

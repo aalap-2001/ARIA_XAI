@@ -1,0 +1,28 @@
+entities:
+  Application:
+    description: A request for credit.
+    fields: {id: string, product: string, amount: number, term_months: number, dti: number}
+  Applicant:
+    description: The person applying. Personal data is stripped before any model call.
+    fields: {tenure_years: number}
+  BureauReport:
+    description: Credit bureau file pulled with the applicant's consent.
+    fields: {score: number, utilisation: number, delinquencies_24m: number}
+  BankAccount:
+    description: Accounts held at the bank (banking ERP / core banking).
+    fields: {income_verified: boolean, overdraft_rate: number}
+  CreditPolicy:
+    description: The lending policy in force for a product (e.g. maximum DTI).
+    fields: {max_dti: number, max_amount: number}
+  ScreeningResult:
+    description: KYC / AML screening outcome.
+    fields: {kyc_passed: boolean, aml_clear: boolean}
+  Insight:
+    description: A learned, human-approved generalisation produced by reflection.
+    fields: {outcome: string, rate: number}
+relationships:
+  - {name: submitted_by, from: Application, to: Applicant}
+  - {name: reports_on, from: BureauReport, to: Applicant}
+  - {name: held_by, from: BankAccount, to: Applicant}
+  - {name: governed_by, from: Application, to: CreditPolicy}
+  - {name: screens, from: ScreeningResult, to: Applicant}

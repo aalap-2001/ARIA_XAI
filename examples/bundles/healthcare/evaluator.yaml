@@ -1,0 +1,5 @@
+description: A good outcome is a claim paid on time with no compliance flag.
+scorer: products.healthcare.scorers:appeal_outcome   # code lives in the product repo; the bundle only references it
+targets: [paid, on time, no compliance flag]
+success_outcomes: [paid, overturned]
+failure_outcomes: [upheld, compliance_flag]

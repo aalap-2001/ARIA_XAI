@@ -1,0 +1,55 @@
+roles:
+  - agent: rex
+    scope: case
+    entities: [ReturnRequest, Transaction, Customer, Item, ReturnPolicy, Insight]
+    write: [ReturnRequest]
+  - agent: auditor
+    scope: tenant
+    entities: [ReturnRequest, Transaction, Customer, Item, ReturnPolicy, Insight]
+decisions: [ISSUE_REFUND, DENY_REFUND]
+retention:
+  facts_years: 3
+  episodes_years: 2
+  receipts_days: 400
+reflection:
+  entity: Insight
+  min_evidence: 3
+seed_facts:
+  - key: electronics-30
+    entity: ReturnPolicy
+    subject: electronics
+    predicate: window
+    value: {window_days: 30}
+    effective_from: "2023-01-01"
+    published_at: "2023-01-01"
+    ingested_at: "2023-01-01"
+    superseded_by_key: electronics-15
+    invalidated_at: "2025-11-01"
+    source: {source: "Returns policy RP-3", locator: "§1", ingest_job: "policy-201"}
+  - key: electronics-15
+    entity: ReturnPolicy
+    subject: electronics
+    predicate: window
+    value: {window_days: 15}
+    effective_from: "2025-11-01"
+    published_at: "2025-10-15"
+    ingested_at: "2025-11-01"
+    source: {source: "Returns policy RP-3 rev 2", locator: "§1", ingest_job: "policy-388"}
+  - key: apparel-60
+    entity: ReturnPolicy
+    subject: apparel
+    predicate: window
+    value: {window_days: 60}
+    effective_from: "2023-01-01"
+    published_at: "2023-01-01"
+    ingested_at: "2023-01-01"
+    source: {source: "Returns policy RP-3", locator: "§2", ingest_job: "policy-201"}
+  - key: home-30
+    entity: ReturnPolicy
+    subject: home
+    predicate: window
+    value: {window_days: 30}
+    effective_from: "2023-01-01"
+    published_at: "2023-01-01"
+    ingested_at: "2023-01-01"
+    source: {source: "Returns policy RP-3", locator: "§3", ingest_job: "policy-201"}

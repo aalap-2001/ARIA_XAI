@@ -1,0 +1,5 @@
+description: Define what a good outcome is for this domain.
+scorer: products.__DOMAIN__.scorers:outcome
+targets: [completed correctly]
+success_outcomes: [success]
+failure_outcomes: [failure]

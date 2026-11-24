@@ -1,0 +1,28 @@
+entities:
+  Claim:
+    description: A billed encounter submitted to a payer.
+    fields: {id: string, payer: string, cpt: string, amount: number, denial_code: string, days_since_denial: number}
+  Payer:
+    description: Insurance company that adjudicates claims.
+    fields: {name: string}
+  Procedure:
+    description: A CPT-coded procedure.
+    fields: {cpt: string, description: string}
+  DenialCode:
+    description: CARC/RARC reason the payer gave for a denial.
+    fields: {code: string, meaning: string}
+  PayerRule:
+    description: A payer's documented requirement for a procedure (e.g. prior authorisation).
+    fields: {requires_auth: boolean, documentation: list}
+  ClinicalDocument:
+    description: Supporting clinical documentation for a claim.
+    fields: {kind: string, completeness: number}
+  Insight:
+    description: A learned, human-approved generalisation produced by reflection.
+    fields: {outcome: string, rate: number}
+relationships:
+  - {name: billed_to, from: Claim, to: Payer}
+  - {name: for_procedure, from: Claim, to: Procedure}
+  - {name: denied_with, from: Claim, to: DenialCode}
+  - {name: governs, from: PayerRule, to: Procedure}
+  - {name: supports, from: ClinicalDocument, to: Claim}

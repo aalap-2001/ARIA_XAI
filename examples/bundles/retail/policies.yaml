@@ -1,0 +1,32 @@
+default: BLOCK
+actions:
+  - {name: ISSUE_REFUND, risk: HIGH, connector: payments, operation: refund, description: Refund to the original payment method}
+  - {name: DENY_REFUND, risk: MEDIUM, connector: notifications, operation: notify_customer, description: Deny and tell the customer why}
+  - {name: ESCALATE_TO_STORE, risk: LOW, description: Hand to a store associate for inspection (internal task)}
+statements:
+  - id: refund-requires-valid
+    effect: BLOCK
+    actions: [ISSUE_REFUND]
+    when: {path: verdict, op: "!=", value: VALID}
+    reason: Refunds require a VALID verdict.
+  - id: refund-up-to-500
+    effect: ALLOW
+    actions: [ISSUE_REFUND]
+    when: {all: [{path: amount, op: "<=", value: 500}, {path: verdict, op: "==", value: VALID}]}
+    reason: Refunds up to $500 are automatic.
+  - id: refund-over-500
+    effect: REVIEW
+    actions: [ISSUE_REFUND]
+    when: {path: amount, op: ">", value: 500}
+    reason: Refunds over $500 need a store manager.
+  - id: deny-allowed
+    effect: ALLOW
+    actions: [DENY_REFUND]
+    reason: Denials with a reason are permitted; customers can appeal in store.
+  - id: escalate
+    effect: ALLOW
+    actions: [ESCALATE_TO_STORE]
+    reason: Escalation is always permitted.
+model_policy:
+  approved_models: [claude-opus-5-5, claude-sonnet-5-5, aria-offline-reasoner]
+  strip_fields: [customer_name, email, phone, address, card_last4]

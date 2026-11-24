@@ -1,0 +1,22 @@
+default: BLOCK
+actions:
+  - {name: COMPLETE, risk: MEDIUM, connector: outbound, operation: complete, description: Complete the item}
+  - {name: ESCALATE, risk: LOW, description: Hand to a human}
+statements:
+  - id: complete-small
+    effect: ALLOW
+    actions: [COMPLETE]
+    when: {all: [{path: verdict, op: "==", value: VALID}, {path: amount, op: "<=", value: 500}]}
+    reason: Small items complete automatically.
+  - id: complete-large
+    effect: REVIEW
+    actions: [COMPLETE]
+    when: {path: amount, op: ">", value: 500}
+    reason: Larger items need a reviewer.
+  - id: escalate
+    effect: ALLOW
+    actions: [ESCALATE]
+    reason: Escalation is always allowed.
+model_policy:
+  approved_models: [claude-opus-5-5, claude-sonnet-5-5, aria-offline-reasoner]
+  strip_fields: [name, email, phone, address]

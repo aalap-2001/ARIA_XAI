@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, sans-serif;
+  /* one typeface across the whole product: code-like text uses the same font as everything else */
+  --font-mono: "Inter", "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, sans-serif;
+  /* ink navy with a deep teal accent: calm, trustworthy, readable */
+  --color-ink: #0f2233;
+  --color-bg: #f4f6f8;
+  --color-panel: #ffffff;
+  --color-panel2: #edf1f4;
+  --color-line: #dfe5ea;
+  --color-line2: #cad3db;
+  --color-fg: #0f2233;
+  --color-muted: #55657a;
+  --color-faint: #8a97a6;
+  --color-accent: #0b7a83;
+  --color-accent2: #08626a;
+  --color-accentsoft: #e2f3f4;
+  --color-ok: #15803d;
+  --color-oksoft: #e6f5eb;
+  --color-warn: #b45309;
+  --color-warnsoft: #fdf2e1;
+  --color-bad: #c42b2b;
+  --color-badsoft: #fcebeb;
+  --color-info: #1d5fbf;
+  --color-infosoft: #e7effb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --color-ink: #0c1a26;
+    --color-bg: #0b141c;
+    --color-panel: #111d27;
+    --color-panel2: #172631;
+    --color-line: #22323f;
+    --color-line2: #2e4050;
+    --color-fg: #e5ecf1;
+    --color-muted: #98a8b6;
+    --color-faint: #647585;
+    --color-accent: #4cc3c8;
+    --color-accent2: #7dd6d9;
+    --color-accentsoft: #10303a;
+    --color-ok: #4ade80;
+    --color-oksoft: #12291d;
+    --color-warn: #fbbf24;
+    --color-warnsoft: #2c2210;
+    --color-bad: #f87171;
+    --color-badsoft: #341719;
+    --color-info: #6aa8f5;
+    --color-infosoft: #10233a;
+  }
+}
+:root.dark {
+  --color-ink: #0c1a26;
+  --color-bg: #0b141c; --color-panel: #111d27; --color-panel2: #172631; --color-line: #22323f; --color-line2: #2e4050;
+  --color-fg: #e5ecf1; --color-muted: #98a8b6; --color-faint: #647585; --color-accent: #4cc3c8; --color-accent2: #7dd6d9;
+  --color-accentsoft: #10303a; --color-ok: #4ade80; --color-oksoft: #12291d; --color-warn: #fbbf24; --color-warnsoft: #2c2210;
+  --color-bad: #f87171; --color-badsoft: #341719; --color-info: #6aa8f5; --color-infosoft: #10233a;
+}
+
+html, body, #root { height: 100%; }
+body { background: var(--color-bg); color: var(--color-fg); font-family: var(--font-sans); font-size: 14px; -webkit-font-smoothing: antialiased; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+::selection { background: color-mix(in srgb, var(--color-accent) 25%, transparent); }
+.scroll-thin::-webkit-scrollbar { width: 8px; height: 8px; }
+.scroll-thin::-webkit-scrollbar-thumb { background: var(--color-line2); border-radius: 8px; }
+/* the website's one moment: the agent team's trace is written line by line */
+@keyframes trace-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.trace-line { opacity: 0; animation: trace-in .45s ease-out forwards; }
+@media (prefers-reduced-motion: reduce) { .trace-line { opacity: 1; animation: none; } }
+@keyframes fadein { from { opacity: 0; transform: translateY(4px); } }
+.fade-in { animation: fadein .18s ease-out; }
+@keyframes pulse-dot { 0%, 100% { opacity: .35 } 50% { opacity: 1 } }
+.typing span { animation: pulse-dot 1.2s infinite; display: inline-block; width: 6px; height: 6px; border-radius: 99px; background: currentColor; margin-right: 3px; }
+.typing span:nth-child(2) { animation-delay: .2s } .typing span:nth-child(3) { animation-delay: .4s }
+.prose-chat p { margin: 0 0 .6em } .prose-chat p:last-child { margin-bottom: 0 }
+.prose-chat ul, .prose-chat ol { margin: .3em 0 .6em 1.2em; } .prose-chat ul { list-style: disc } .prose-chat ol { list-style: decimal }
+.prose-chat code { font-family: var(--font-mono); font-size: 12.5px; background: var(--color-panel2); padding: 1px 5px; border-radius: 5px; }
+.prose-chat strong { font-weight: 650; }
+.prose-chat table { border-collapse: collapse; margin: .4em 0; font-size: 13px; }
+.prose-chat td, .prose-chat th { border: 1px solid var(--color-line); padding: 3px 8px; text-align: left; }

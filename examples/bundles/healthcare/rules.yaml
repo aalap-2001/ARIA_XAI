@@ -1,0 +1,48 @@
+features:
+  days_since_denial: {from: claim.days_since_denial, type: number, description: Days elapsed since the denial}
+  billed_amount: {from: claim.amount, type: number, description: Billed amount}
+  has_prior_auth: {from: documents.prior_auth_on_file, type: bool, description: A prior authorisation number is on file}
+  documentation_completeness: {from: documents.completeness, type: number, description: Share of required documentation present (0-1)}
+  diagnostic_support: {from: documents.diagnostic_support, type: number, confidence_from: documents.extraction_confidence, description: Strength of diagnosis-to-procedure support (0-1)}
+  payer_requires_auth: {from: payer_rule.requires_auth, type: bool, description: Payer requires prior auth for this procedure (as known at decision time)}
+soft:
+  - id: appeal-strength
+    version: "3"
+    output: appeal_strength
+    description: How strong the grounds for appeal are, combining clinical support, documentation and authorisation.
+    inputs:
+      - {feature: diagnostic_support, weight: 0.5}
+      - {feature: documentation_completeness, weight: 0.3}
+      - {feature: has_prior_auth, weight: 0.2}
+thresholds:
+  - signal: strong_grounds
+    from: appeal_strength
+    assert_above: 0.80
+    deny_below: 0.40
+    min_coverage: 0.6
+    version: "2"
+hard:
+  - id: timely-filing
+    version: "1"
+    description: Appeals must be filed within 180 days of the denial.
+    citation: Payer provider manuals, appeal filing limits
+    require: {path: days_since_denial, op: "<=", value: 180}
+    on_fail: INVALID
+    message: Outside the appeal filing window.
+  - id: prior-auth-satisfied
+    version: "2"
+    description: If the payer requires prior authorisation, an authorisation must be on file.
+    citation: Payer rule as known at decision time (Knowledge Fabric)
+    require:
+      any:
+        - {path: payer_requires_auth, is: false}
+        - {path: has_prior_auth, is: true}
+    on_fail: INVALID
+    message: Payer requires authorisation and none is on file.
+  - id: grounds-asserted
+    version: "1"
+    description: Appeal grounds must be asserted by the discretisation gate.
+    citation: Appeal policy RCM-07
+    require: {path: signals.strong_grounds, is: true}
+    on_fail: INVALID
+    message: Evidence does not support an appeal.

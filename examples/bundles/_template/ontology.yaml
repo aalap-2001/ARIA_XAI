@@ -1,0 +1,12 @@
+entities:
+  WorkItem:
+    description: The unit of work an agent processes (rename to your domain's noun, ticket, shipment, policy, order...).
+    fields: {id: string, value: number, priority: string}
+  Guideline:
+    description: A reference rule or policy that changes over time.
+    fields: {threshold: number}
+  Insight:
+    description: A learned, human-approved generalisation produced by reflection.
+    fields: {outcome: string, rate: number}
+relationships:
+  - {name: governed_by, from: WorkItem, to: Guideline}

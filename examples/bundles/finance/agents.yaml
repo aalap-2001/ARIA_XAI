@@ -1,0 +1,28 @@
+agents:
+  - id: uma
+    name: Uma, Credit Underwriter
+    description: Underwrites personal and auto loans using bureau, banking and screening data under the credit policy in force on the decision date.
+    persona: You are a prudent underwriter. You distinguish "not enough evidence yet" from "decline", and you never decide on protected characteristics.
+    certified: true
+    certification: {level: HIGH, expires: "2027-03-31", by: "Model risk management"}
+    limits: {max_amount: 100000}
+    allowed_actions: [APPROVE_LOAN, DECLINE_LOAN, REQUEST_INFO]
+    default_on_behalf_of: applicant-consent-token
+    case_source: {connector: loan-origination, operation: list_applications}
+    playbook:
+      - {step: fetch, label: Read the application, connector: loan-origination, operation: get_application, as: application}
+      - {step: fetch, label: Pull the bureau file (delegated), connector: bureau-api, operation: get_report, as: bureau}
+      - {step: fetch, label: Read banking relationship, connector: core-banking, operation: get_accounts, as: accounts}
+      - {step: fetch, label: KYC / AML screening, connector: kyc-aml, operation: get_screening, as: screening}
+      - {step: recall, label: Recall the credit policy in force, entity: CreditPolicy, subject: "{application.product}", as: credit_policy}
+      - step: reason
+        label: Summarise the credit picture
+        instruction: Summarise the applicant's credit picture and the main risk drivers, without referring to any personal identifiers.
+        include: [application, bureau, accounts, screening, credit_policy]
+        as: credit_memo
+      - {step: evaluate, label: Validate against rules}
+      - step: act
+        label: Request the decision
+        by_verdict: {VALID: APPROVE_LOAN, INVALID: DECLINE_LOAN, INSUFFICIENT_EVIDENCE: REQUEST_INFO}
+        amount: $application.amount
+        payload: {application_id: $application.id, product: $application.product, amount: $application.amount, memo: $credit_memo}

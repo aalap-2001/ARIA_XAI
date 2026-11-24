@@ -1,0 +1,5 @@
+description: A good outcome is a loan repaid with no fair-lending flag.
+scorer: products.finance.scorers:credit_outcome
+targets: [repaid, no fair-lending flag]
+success_outcomes: [repaid, current]
+failure_outcomes: [default, charged_off, fair_lending_flag]

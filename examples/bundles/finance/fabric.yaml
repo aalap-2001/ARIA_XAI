@@ -1,0 +1,46 @@
+roles:
+  - agent: uma
+    scope: case
+    entities: [Application, Applicant, BureauReport, BankAccount, CreditPolicy, ScreeningResult, Insight]
+    write: [Application]
+  - agent: auditor
+    scope: tenant
+    entities: [Application, Applicant, BureauReport, BankAccount, CreditPolicy, ScreeningResult, Insight]
+decisions: [APPROVE_LOAN, DECLINE_LOAN]
+retention:
+  facts_years: 7
+  episodes_years: 7
+  receipts_days: 2555   # fair-lending examinations reach back years
+reflection:
+  entity: Insight
+  min_evidence: 3
+seed_facts:
+  - key: pl-policy-2022
+    entity: CreditPolicy
+    subject: personal-loan
+    predicate: limits
+    value: {max_dti: 0.50, max_amount: 75000}
+    effective_from: "2022-01-01"
+    published_at: "2021-12-15"
+    ingested_at: "2021-12-16"
+    superseded_by_key: pl-policy-2024
+    invalidated_at: "2024-01-02"
+    source: {source: "Credit policy CP-12 v4", locator: "§2.1", ingest_job: "policy-sync-118"}
+  - key: pl-policy-2024
+    entity: CreditPolicy
+    subject: personal-loan
+    predicate: limits
+    value: {max_dti: 0.43, max_amount: 75000}
+    effective_from: "2024-01-01"
+    published_at: "2023-12-20"
+    ingested_at: "2024-01-02"
+    source: {source: "Credit policy CP-12 v5", locator: "§2.1", ingest_job: "policy-sync-207"}
+  - key: auto-policy
+    entity: CreditPolicy
+    subject: auto-loan
+    predicate: limits
+    value: {max_dti: 0.48, max_amount: 120000}
+    effective_from: "2023-06-01"
+    published_at: "2023-05-20"
+    ingested_at: "2023-05-21"
+    source: {source: "Credit policy CP-14 v2", locator: "§3", ingest_job: "policy-sync-160"}

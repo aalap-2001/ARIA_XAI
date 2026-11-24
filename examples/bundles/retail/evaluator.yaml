@@ -1,0 +1,5 @@
+description: A good outcome keeps a legitimate customer and stops abuse.
+scorer: products.retail.scorers:return_outcome
+targets: [legitimate refunds paid, abuse stopped, no chargeback]
+success_outcomes: [customer_retained, abuse_prevented]
+failure_outcomes: [chargeback, complaint_upheld]
